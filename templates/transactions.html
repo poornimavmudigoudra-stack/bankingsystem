@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Account Activity & History · Apex National Bank{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem;">
+      Account Activity & History
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Audit trail and comprehensive movement ledger for account {{ current_user.account_number }}.
+    </p>
+  </div>
+  <a href="{{ url_for('user.export_transactions') }}" class="btn btn-primary">
+    <span>📥</span> Export CSV Statement
+  </a>
+</div>
+
+<!-- Filter Toolbar & Search Bar -->
+<div class="card" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+  <form method="get" action="{{ url_for('user.transactions') }}" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    
+    <!-- Filter Tabs -->
+    <div class="filter-tabs" style="margin-bottom: 0;">
+      <a href="{{ url_for('user.transactions', type='all', q=search_query) }}" class="filter-tab {% if selected_type in ('all', '', none) %}active{% endif %}">
+        All Movements
+      </a>
+      <a href="{{ url_for('user.transactions', type='deposit', q=search_query) }}" class="filter-tab {% if selected_type == 'deposit' %}active{% endif %}">
+        Deposits
+      </a>
+      <a href="{{ url_for('user.transactions', type='withdrawal', q=search_query) }}" class="filter-tab {% if selected_type == 'withdrawal' %}active{% endif %}">
+        Withdrawals
+      </a>
+      <a href="{{ url_for('user.transactions', type='transfer_debit', q=search_query) }}" class="filter-tab {% if selected_type == 'transfer_debit' %}active{% endif %}">
+        Sent Transfers
+      </a>
+      <a href="{{ url_for('user.transactions', type='transfer_credit', q=search_query) }}" class="filter-tab {% if selected_type == 'transfer_credit' %}active{% endif %}">
+        Received Transfers
+      </a>
+    </div>
+
+    <!-- Search Input -->
+    <div style="display: flex; gap: 0.5rem;">
+      <input type="hidden" name="type" value="{{ selected_type }}">
+      <input class="form-control" type="text" name="q" value="{{ search_query }}" placeholder="Search description or ref..." style="max-width: 250px; font-size: 0.9rem;">
+      <button type="submit" class="btn btn-secondary btn-sm">Search</button>
+      {% if search_query or (selected_type and selected_type != 'all') %}
+        <a href="{{ url_for('user.transactions') }}" class="btn btn-secondary btn-sm" title="Clear Filters">✕</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- Transactions Table Card -->
+<div class="card">
+  <div class="table-responsive">
+    {% if transactions %}
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Reference ID</th>
+            <th>Date & Time</th>
+            <th>Description & Counterparty</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Settled Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transactions %}
+            <tr>
+              <td>
+                <code style="font-family: var(--font-mono); font-size: 0.85rem; background: #f1f5f9; padding: 0.2rem 0.4rem; border-radius: 4px;">
+                  {{ t.reference_id }}
+                </code>
+              </td>
+              <td style="white-space: nowrap; color: var(--text-muted); font-size: 0.85rem;">
+                {{ t.timestamp.strftime('%b %d, %Y · %I:%M %p') if t.timestamp else '' }}
+              </td>
+              <td>
+                <strong style="color: var(--secondary);">{{ t.description }}</strong>
+                {% if t.recipient_name or t.recipient_account %}
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem;">
+                    Counterparty: {{ t.recipient_name or 'N/A' }} ({{ t.recipient_account or 'N/A' }})
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge badge-{{ t.transaction_type }}">
+                  {{ t.transaction_type.replace('_', ' ')|title }}
+                </span>
+              </td>
+              <td>
+                <span class="{% if t.transaction_type in ('deposit', 'transfer_credit') %}amount-positive{% else %}amount-negative{% endif %}">
+                  {{ '+' if t.transaction_type in ('deposit', 'transfer_credit') else '-' }}${{ '%.2f'|format(t.amount) }}
+                </span>
+              </td>
+              <td style="font-weight: 600; color: var(--secondary);">
+                ${{ '%.2f'|format(t.balance_after) }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <div class="empty-state-text">No Matching Transactions</div>
+        <p class="empty-state-sub">Try broadening your search query or switching filters.</p>
+        <a href="{{ url_for('user.transactions') }}" class="btn btn-secondary btn-sm" style="margin-top: 1rem;">View All Transactions</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Pagination Controls -->
+  {% if pagination and pagination.pages > 1 %}
+    <div class="pagination-container" style="padding: 1.25rem; border-top: 1px solid var(--border-light);">
+      <span style="font-size: 0.85rem; color: var(--text-muted);">
+        Showing page <strong>{{ pagination.page }}</strong> of <strong>{{ pagination.pages }}</strong> ({{ pagination.total }} total entries)
+      </span>
+      <div class="pagination-links">
+        <a href="{{ url_for('user.transactions', page=pagination.prev_num, type=selected_type, q=search_query) }}" 
+           class="page-btn {% if not pagination.has_prev %}disabled{% endif %}">
+          ← Previous
+        </a>
+
+        {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+          {% if p %}
+            <a href="{{ url_for('user.transactions', page=p, type=selected_type, q=search_query) }}" 
+               class="page-btn {% if p == pagination.page %}active{% endif %}">
+              {{ p }}
+            </a>
+          {% else %}
+            <span class="page-btn disabled">…</span>
+          {% endif %}
+        {% endfor %}
+
+        <a href="{{ url_for('user.transactions', page=pagination.next_num, type=selected_type, q=search_query) }}" 
+           class="page-btn {% if not pagination.has_next %}disabled{% endif %}">
+          Next →
+        </a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

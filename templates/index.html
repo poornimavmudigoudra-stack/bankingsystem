@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Apex National Bank · Modern Everyday Digital Banking{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-pill">
+    <span>🔒</span> Institutional-Grade Security · Real-Time Settlements
+  </div>
+  <h1 class="hero-title">
+    The modern standard in<br>
+    <span>secure digital banking.</span>
+  </h1>
+  <p class="hero-subtitle">
+    Experience frictionless funds movement, instant peer-to-peer account transfers, 
+    continuous ledger transparency, and FDIC-backed asset custody.
+  </p>
+  <div class="hero-cta-group">
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+      <span>✨</span> Open a Free Account
+    </a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-lg">
+      <span>🔐</span> Access Online Banking
+    </a>
+  </div>
+</section>
+
+<!-- Demo Credentials Helper Banner -->
+<div class="card" style="margin-bottom: 3rem; background: #f8fafc; border: 2px dashed #cbd5e1;">
+  <div class="card-header" style="background: transparent; border-bottom: 1px solid #e2e8f0;">
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <span style="font-size: 1.25rem;">🔑</span>
+      <strong style="color: var(--secondary); font-size: 1.05rem;">Quick-Test Demo Credentials</strong>
+    </div>
+    <span class="badge badge-active">Pre-Configured</span>
+  </div>
+  <div class="card-body">
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
+      You can immediately test customer and administrative features using these pre-seeded accounts:
+    </p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+      
+      <!-- Customer 1 -->
+      <div style="background: #ffffff; padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span class="badge badge-customer">Primary Customer</span>
+          <strong style="color: var(--success);">$5,420.50</strong>
+        </div>
+        <div style="font-size: 0.95rem; font-weight: 700; color: var(--secondary);">Poornima Veeranagouda</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Account: <code>984729104823</code></div>
+        <div style="font-size: 0.85rem; background: #f1f5f9; padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono);">
+          Username: <strong>poorvi</strong><br>
+          Password: <strong>poorvi@123</strong>
+        </div>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-primary btn-block" style="margin-top: 0.75rem;">Login as Poorvi</a>
+      </div>
+
+      <!-- Customer 2 -->
+      <div style="background: #ffffff; padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span class="badge badge-customer">Secondary Customer</span>
+          <strong style="color: var(--success);">$12,500.00</strong>
+        </div>
+        <div style="font-size: 0.95rem; font-weight: 700; color: var(--secondary);">Alex Turner</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Account: <code>847291038291</code></div>
+        <div style="font-size: 0.85rem; background: #f1f5f9; padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono);">
+          Username: <strong>alex_turner</strong><br>
+          Password: <strong>Alex@123</strong>
+        </div>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-secondary btn-block" style="margin-top: 0.75rem;">Login as Alex</a>
+      </div>
+
+      <!-- Administrator -->
+      <div style="background: #ffffff; padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span class="badge badge-admin">Administrator</span>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Executive Access</span>
+        </div>
+        <div style="font-size: 0.95rem; font-weight: 700; color: var(--secondary);">System Administrator</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Audit & Control Panel</div>
+        <div style="font-size: 0.85rem; background: #f1f5f9; padding: 0.5rem 0.75rem; border-radius: 6px; font-family: var(--font-mono);">
+          Username: <strong>admin</strong><br>
+          Password: <strong>Admin@123</strong>
+        </div>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-primary btn-block" style="margin-top: 0.75rem; background: #7e22ce; border-color: #7e22ce;">Login as Admin</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Features Section -->
+<section style="margin-bottom: 3.5rem;">
+  <div style="text-align: center; margin-bottom: 2.5rem;">
+    <h2 style="font-size: 2rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.5rem;">Engineered for Financial Confidence</h2>
+    <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">Everything you need to save, manage, and move money with zero friction.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="card feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--secondary);">Instant P2P Fund Transfers</h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Send money instantly to any customer using their 12-digit account number with atomic verification.</p>
+    </div>
+
+    <div class="card feature-card">
+      <div class="feature-icon">💳</div>
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--secondary);">Virtual Debit Provisioning</h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Get a realistic virtual debit card provisioned automatically upon sign-up, secured with bank-grade encryption.</p>
+    </div>
+
+    <div class="card feature-card">
+      <div class="feature-icon">📊</div>
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--secondary);">Comprehensive Audit & CSV</h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Download complete transaction ledgers in CSV format for bookkeeping, tax reporting, or reconciliation.</p>
+    </div>
+
+    <div class="card feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--secondary);">Administrative Oversight</h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Granular controls for bank staff: view total system liquidity, freeze suspicious accounts, and audit global activity.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

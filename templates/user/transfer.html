@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Peer-to-Peer Fund Transfer · Apex National Bank{% endblock %}
+
+{% block content %}
+<div style="max-width: 650px; margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem;">
+        Direct Fund Transfer
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Send funds instantly to any Apex National Bank customer account.
+      </p>
+    </div>
+    <span class="badge badge-active">Balance: ${{ '%.2f'|format(current_user.balance) }}</span>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" action="{{ url_for('user.transfer') }}" data-confirm-transfer>
+        
+        <!-- Recipient Account Number -->
+        <div class="form-group">
+          <label class="form-label" for="recipient_account">Recipient 12-Digit Account Number</label>
+          <input class="form-control" id="recipient_account" name="recipient_account" type="text" maxlength="20" placeholder="e.g. 847291038291" required autofocus style="font-family: var(--font-mono); font-weight: 600;">
+          <p class="form-text">Recipient must be a registered and active Apex account holder.</p>
+        </div>
+
+        <!-- Demo Quick-Select Helper -->
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Demo Recipient Account:</div>
+          <button type="button" class="chip-btn" onclick="document.getElementById('recipient_account').value='847291038291';">
+            Alex Turner (Acc: 847291038291)
+          </button>
+        </div>
+
+        <!-- Amount -->
+        <div class="form-group">
+          <label class="form-label" for="amount">Transfer Amount (USD)</label>
+          <div class="input-icon-group">
+            <span class="input-currency-prefix">$</span>
+            <input class="form-control" id="amount" name="amount" type="number" step="0.01" min="0.01" max="{{ current_user.balance }}" placeholder="0.00" required style="font-size: 1.25rem; font-weight: 700;">
+          </div>
+          <p class="form-text">Maximum available to transfer: <strong>${{ '%.2f'|format(current_user.balance) }}</strong></p>
+        </div>
+
+        <!-- Description / Memo -->
+        <div class="form-group">
+          <label class="form-label" for="description">Transfer Memo / Note <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+          <input class="form-control" id="description" name="description" type="text" maxlength="200" placeholder="e.g. Dinner split, monthly rent, equipment purchase">
+        </div>
+
+        <!-- Security Notice -->
+        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: center;">
+          <span style="font-size: 1.2rem;">🔒</span>
+          <div style="font-size: 0.85rem; color: #065f46;">
+            <strong>Atomic Transaction Protocol:</strong> Funds are transferred and ledgered in real time. Transactions are irrevocable once authorized.
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" {% if current_user.balance <= 0 %}disabled{% endif %}>
+          {% if current_user.balance > 0 %}
+            Review & Authorize Transfer ➔
+          {% else %}
+            Insufficient Available Funds
+          {% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

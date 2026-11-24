@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Withdraw Funds · Apex National Bank{% endblock %}
+
+{% block content %}
+<div style="max-width: 620px; margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem;">
+        Withdraw Funds
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Transfer money out of your account to an external debit point or cash ledger.
+      </p>
+    </div>
+    <span class="badge badge-active">Available: ${{ '%.2f'|format(current_user.balance) }}</span>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" action="{{ url_for('user.withdraw') }}">
+        
+        <!-- Amount Input Field -->
+        <div class="form-group">
+          <label class="form-label" for="amount">Withdrawal Amount (USD)</label>
+          <div class="input-icon-group">
+            <span class="input-currency-prefix">$</span>
+            <input class="form-control" id="amount" name="amount" type="number" step="0.01" min="0.01" max="{{ current_user.balance }}" placeholder="0.00" required autofocus style="font-size: 1.25rem; font-weight: 700;">
+          </div>
+          <p class="form-text">Available to withdraw: <strong>${{ '%.2f'|format(current_user.balance) }}</strong></p>
+        </div>
+
+        <!-- Quick Presets -->
+        {% if current_user.balance > 0 %}
+          <div style="margin-bottom: 1.5rem;">
+            <label class="form-label" style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Quick Presets</label>
+            <div class="chip-group">
+              {% if current_user.balance >= 50 %}
+                <button type="button" class="chip-btn" onclick="document.getElementById('amount').value='50.00'">$50</button>
+              {% endif %}
+              {% if current_user.balance >= 100 %}
+                <button type="button" class="chip-btn" onclick="document.getElementById('amount').value='100.00'">$100</button>
+              {% endif %}
+              {% if current_user.balance >= 250 %}
+                <button type="button" class="chip-btn" onclick="document.getElementById('amount').value='250.00'">$250</button>
+              {% endif %}
+              {% if current_user.balance >= 500 %}
+                <button type="button" class="chip-btn" onclick="document.getElementById('amount').value='500.00'">$500</button>
+              {% endif %}
+              <button type="button" class="chip-btn" onclick="document.getElementById('amount').value='{{ '%.2f'|format(current_user.balance) }}'">All Available</button>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label" for="description">Withdrawal Memo <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+          <input class="form-control" id="description" name="description" type="text" maxlength="200" placeholder="e.g. ATM cash withdrawal, external loan payment">
+        </div>
+
+        <button type="submit" class="btn btn-danger btn-block btn-lg" style="margin-top: 1rem;" {% if current_user.balance <= 0 %}disabled{% endif %}>
+          {% if current_user.balance > 0 %}
+            Confirm Withdrawal ➔
+          {% else %}
+            Insufficient Funds to Withdraw
+          {% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

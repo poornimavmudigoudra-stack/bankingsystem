@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Console · Apex National Bank{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem;">
+      Administrative Command Console
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Institutional oversight, liquidity monitoring, and customer account administration.
+    </p>
+  </div>
+  <div style="display: flex; gap: 0.75rem; align-items: center;">
+    <span class="badge badge-admin">Master Administrator</span>
+    <span class="badge badge-active">Live Ledger</span>
+  </div>
+</div>
+
+<!-- Key System Metrics -->
+<div class="stats-grid" style="margin-bottom: 2.5rem;">
+  <div class="card stat-card">
+    <div class="stat-label">Total Vault Liquidity</div>
+    <div class="stat-value" style="color: var(--primary);">${{ '%.2f'|format(total_holdings) }}</div>
+    <div class="stat-trend positive">
+      <span>●</span> Customer Deposits Aggregate
+    </div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-label">Total Customer Accounts</div>
+    <div class="stat-value" style="color: var(--secondary);">{{ total_customers }}</div>
+    <div class="stat-trend neutral">
+      <span style="color: var(--success); font-weight: 600;">{{ active_customers }} Active</span>
+      <span>·</span>
+      <span style="color: var(--danger); font-weight: 600;">{{ frozen_customers }} Frozen</span>
+    </div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-label">Total Ledger Transactions</div>
+    <div class="stat-value" style="color: var(--secondary);">{{ total_transactions_count }}</div>
+    <div class="stat-trend positive">
+      <span>✓</span> Verified Settled Operations
+    </div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-label">Audit & Compliance</div>
+    <div class="stat-value" style="color: var(--success);">100%</div>
+    <div class="stat-trend positive">
+      <span>🔒</span> System Integrity Intact
+    </div>
+  </div>
+</div>
+
+<!-- Admin Quick Links -->
+<div style="margin-bottom: 2.5rem;">
+  <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem;">Administrative Modules</h2>
+  <div class="actions-grid">
+    <a href="{{ url_for('admin.customers') }}" class="action-btn">
+      <div class="action-icon">👥</div>
+      <span>Manage Customers</span>
+    </a>
+    <a href="{{ url_for('admin.accounts') }}" class="action-btn">
+      <div class="action-icon">🏛️</div>
+      <span>Accounts Ledger</span>
+    </a>
+    <a href="{{ url_for('admin.transactions') }}" class="action-btn">
+      <div class="action-icon">📊</div>
+      <span>All Transactions</span>
+    </a>
+    <a href="{{ url_for('admin.export_transactions') }}" class="action-btn">
+      <div class="action-icon">📥</div>
+      <span>Export System CSV</span>
+    </a>
+  </div>
+</div>
+
+<!-- Dual Split: Recent Global Transactions & Recent Customers -->
+<div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; margin-bottom: 2rem;" class="admin-split-grid">
+  
+  <!-- Recent Global Transactions -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Recent System Transactions</h2>
+      <a href="{{ url_for('admin.transactions') }}" style="font-size: 0.85rem; font-weight: 600;">View All ➔</a>
+    </div>
+    <div class="table-responsive">
+      {% if recent_transactions %}
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Ref ID</th>
+              <th>Customer</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in recent_transactions %}
+              <tr>
+                <td><code style="font-size: 0.8rem;">{{ t.reference_id }}</code></td>
+                <td>
+                  <strong>{{ t.user.full_name if t.user else 'Unknown' }}</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ t.user.account_number if t.user else 'N/A' }}</div>
+                </td>
+                <td><span class="badge badge-{{ t.transaction_type }}">{{ t.transaction_type|title }}</span></td>
+                <td>
+                  <span class="{% if t.transaction_type in ('deposit', 'transfer_credit') %}amount-positive{% else %}amount-negative{% endif %}">
+                    ${{ '%.2f'|format(t.amount) }}
+                  </span>
+                </td>
+                <td style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">
+                  {{ t.timestamp.strftime('%m/%d %H:%M') }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state" style="padding: 2rem;">No system transactions yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Registered Customers -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Registered Customers</h2>
+      <a href="{{ url_for('admin.customers') }}" style="font-size: 0.85rem; font-weight: 600;">Manage All ➔</a>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      {% for u in recent_customers %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-light);">
+          <div>
+            <strong style="color: var(--secondary);">{{ u.full_name }}</strong>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">
+              Acc: <code>{{ u.account_number }}</code> · Balance: <strong>${{ '%.2f'|format(u.balance) }}</strong>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            {% if u.is_active %}
+              <span class="badge badge-active">Active</span>
+            {% else %}
+              <span class="badge badge-frozen">Frozen</span>
+            {% endif %}
+            <form method="post" action="{{ url_for('admin.toggle_customer_status', user_id=u.id) }}" style="display: inline;">
+              <button type="submit" class="btn btn-sm {% if u.is_active %}btn-secondary{% else %}btn-success{% endif %}" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                {{ 'Freeze' if u.is_active else 'Activate' }}
+              </button>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding: 2rem;">No customers registered yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

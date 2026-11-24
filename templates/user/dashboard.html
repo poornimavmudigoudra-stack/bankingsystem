@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard · Apex National Bank{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem;">
+      Welcome back, {{ current_user.full_name.split(' ')[0] }}
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Here is your financial portfolio and transaction activity summary.
+    </p>
+  </div>
+  <div style="display: flex; gap: 0.75rem; align-items: center;">
+    {% if current_user.is_active %}
+      <span class="badge badge-active">● Account Active</span>
+    {% else %}
+      <span class="badge badge-frozen">● Account Frozen</span>
+    {% endif %}
+    <span class="badge badge-customer">Personal Checking</span>
+  </div>
+</div>
+
+<!-- Primary Overview Grid: Virtual Debit Card & Financial Stats -->
+<div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 2rem; margin-bottom: 2.5rem;" class="dashboard-top-grid">
+  
+  <!-- Virtual Card -->
+  <div>
+    <div class="virtual-card">
+      <div class="card-top">
+        <span class="card-bank-name">APEX NATIONAL BANK</span>
+        <span style="font-size: 0.75rem; letter-spacing: 0.1em; opacity: 0.85;">DEBIT</span>
+      </div>
+      
+      <div class="card-chip"></div>
+      
+      <div class="card-number">
+        •••• •••• •••• {{ current_user.account_number[-4:] }}
+      </div>
+      
+      <div class="card-bottom">
+        <div>
+          <div class="card-holder-title">Cardholder</div>
+          <div class="card-holder-name">{{ current_user.full_name }}</div>
+        </div>
+        <div>
+          <div class="card-expiry-title">Expires</div>
+          <div class="card-expiry-value">08/30</div>
+        </div>
+      </div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding: 0 0.5rem;">
+      <span style="font-size: 0.8rem; color: var(--text-muted);">
+        Account: <strong>{{ current_user.account_number }}</strong>
+      </span>
+      <button type="button" class="btn btn-sm btn-secondary" data-copy="{{ current_user.account_number }}" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">
+        Copy Number
+      </button>
+    </div>
+  </div>
+
+  <!-- Financial Metric Cards -->
+  <div class="stats-grid" style="margin-bottom: 0;">
+    <div class="card stat-card">
+      <div class="stat-label">Available Balance</div>
+      <div class="stat-value" style="color: var(--primary);">${{ '%.2f'|format(current_user.balance) }}</div>
+      <div class="stat-trend positive">
+        <span>✓</span> Verified Settled Funds
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-label">Total Inflow / Deposits</div>
+      <div class="stat-value" style="color: var(--success);">${{ '%.2f'|format(total_deposited) }}</div>
+      <div class="stat-trend positive">
+        <span>↑</span> Lifetime Inflow
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-label">Total Outflow / Spent</div>
+      <div class="stat-value" style="color: var(--danger);">${{ '%.2f'|format(total_spent) }}</div>
+      <div class="stat-trend negative">
+        <span>↓</span> Debits & Transfers
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-label">Total Transactions</div>
+      <div class="stat-value">{{ total_txns }}</div>
+      <div class="stat-trend neutral">
+        <span>◷</span> Recorded Events
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Quick Action Shortcuts -->
+<div style="margin-bottom: 2.5rem;">
+  <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem;">Quick Services</h2>
+  <div class="actions-grid">
+    <a href="{{ url_for('user.deposit') }}" class="action-btn">
+      <div class="action-icon">➕</div>
+      <span>Add Money</span>
+    </a>
+    <a href="{{ url_for('user.withdraw') }}" class="action-btn">
+      <div class="action-icon">↗</div>
+      <span>Withdraw</span>
+    </a>
+    <a href="{{ url_for('user.transfer') }}" class="action-btn">
+      <div class="action-icon">⚡</div>
+      <span>Send Funds</span>
+    </a>
+    <a href="{{ url_for('user.balance') }}" class="action-btn">
+      <div class="action-icon">💳</div>
+      <span>Balance Info</span>
+    </a>
+    <a href="{{ url_for('user.transactions') }}" class="action-btn">
+      <div class="action-icon">📋</div>
+      <span>Statements</span>
+    </a>
+    <a href="{{ url_for('user.profile') }}" class="action-btn">
+      <div class="action-icon">⚙️</div>
+      <span>Settings</span>
+    </a>
+  </div>
+</div>
+
+<!-- Recent Transactions Table Card -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2 class="card-title">Recent Activity</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">Latest movements across your account ledger</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <input type="text" id="tableSearchInput" class="form-control" placeholder="Search activity..." style="max-width: 220px; padding: 0.4rem 0.85rem; font-size: 0.85rem;">
+      <a href="{{ url_for('user.transactions') }}" class="btn btn-sm btn-secondary">View All</a>
+      <a href="{{ url_for('user.export_transactions') }}" class="btn btn-sm btn-primary">Export CSV</a>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    {% if recent_transactions %}
+      <table class="data-table" id="searchableTable">
+        <thead>
+          <tr>
+            <th>Reference ID</th>
+            <th>Date & Time</th>
+            <th>Description & Counterparty</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Settled Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in recent_transactions %}
+            <tr>
+              <td><code style="font-family: var(--font-mono); font-size: 0.85rem;">{{ t.reference_id }}</code></td>
+              <td style="white-space: nowrap; color: var(--text-muted); font-size: 0.85rem;">
+                {{ t.timestamp.strftime('%b %d, %Y · %I:%M %p') }}
+              </td>
+              <td>
+                <strong style="color: var(--secondary);">{{ t.description }}</strong>
+                {% if t.recipient_name or t.recipient_account %}
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">
+                    Counterparty: {{ t.recipient_name or 'N/A' }} · {{ t.recipient_account or '' }}
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge badge-{{ t.transaction_type }}">
+                  {{ t.transaction_type.replace('_', ' ')|title }}
+                </span>
+              </td>
+              <td>
+                <span class="{% if t.transaction_type in ('deposit', 'transfer_credit') %}amount-positive{% else %}amount-negative{% endif %}">
+                  {{ '+' if t.transaction_type in ('deposit', 'transfer_credit') else '-' }}${{ '%.2f'|format(t.amount) }}
+                </span>
+              </td>
+              <td style="font-weight: 600; color: var(--secondary);">
+                ${{ '%.2f'|format(t.balance_after) }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-text">No Transactions Recorded</div>
+        <p class="empty-state-sub">Make a deposit or send a transfer to begin your banking history.</p>
+        <a href="{{ url_for('user.deposit') }}" class="btn btn-primary btn-sm" style="margin-top: 1rem;">Make First Deposit</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

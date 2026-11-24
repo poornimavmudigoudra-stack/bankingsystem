@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Deposit Funds · Apex National Bank{% endblock %}
+
+{% block content %}
+<div style="max-width: 620px; margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem;">
+        Deposit Funds
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Add liquidity to your checking account with immediate availability.
+      </p>
+    </div>
+    <span class="badge badge-active">Available: ${{ '%.2f'|format(current_user.balance) }}</span>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" action="{{ url_for('user.deposit') }}">
+        
+        <!-- Amount Input Field -->
+        <div class="form-group">
+          <label class="form-label" for="amount">Deposit Amount (USD)</label>
+          <div class="input-icon-group">
+            <span class="input-currency-prefix">$</span>
+            <input class="form-control" id="amount" name="amount" type="number" step="0.01" min="0.01" max="1000000" placeholder="0.00" required autofocus style="font-size: 1.25rem; font-weight: 700;">
+          </div>
+          <p class="form-text">Single transaction limit: $1,000,000.00 USD.</p>
+        </div>
+
+        <!-- Quick Amount Presets -->
+        <div style="margin-bottom: 1.5rem;">
+          <label class="form-label" style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Quick Presets</label>
+          <div class="chip-group">
+            <button type="button" class="chip-btn" onclick="document.getElementById('amount').value='100.00'">+$100</button>
+            <button type="button" class="chip-btn" onclick="document.getElementById('amount').value='250.00'">+$250</button>
+            <button type="button" class="chip-btn" onclick="document.getElementById('amount').value='500.00'">+$500</button>
+            <button type="button" class="chip-btn" onclick="document.getElementById('amount').value='1000.00'">+$1,000</button>
+            <button type="button" class="chip-btn" onclick="document.getElementById('amount').value='5000.00'">+$5,000</button>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label" for="description">Deposit Memo <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+          <input class="form-control" id="description" name="description" type="text" maxlength="200" placeholder="e.g. Payroll direct deposit, savings transfer">
+        </div>
+
+        <!-- Security Badge Notice -->
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.75rem; display: flex; gap: 0.75rem; align-items: center;">
+          <span style="font-size: 1.25rem;">🛡️</span>
+          <div style="font-size: 0.85rem; color: #1e40af; line-height: 1.4;">
+            <strong>Immediate Fund Availability:</strong> Electronic deposits are verified and settled to your account instantly with full FDIC protection.
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+          Deposit Funds Instantly ➔
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

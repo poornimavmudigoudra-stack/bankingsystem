@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Open an Account · Apex National Bank{% endblock %}
+
+{% block content %}
+<div class="auth-box" style="max-width: 520px;">
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <svg style="width: 48px; height: 48px; margin-bottom: 0.75rem;" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" rx="10" fill="#2563EB"/>
+      <path d="M20 9L29 15V17H11V15L20 9Z" fill="white"/>
+      <rect x="13" y="19" width="3" height="9" fill="white" fill-opacity="0.9"/>
+      <rect x="18.5" y="19" width="3" height="9" fill="white" fill-opacity="0.9"/>
+      <rect x="24" y="19" width="3" height="9" fill="white" fill-opacity="0.9"/>
+      <rect x="11" y="29" width="18" height="2.5" rx="0.5" fill="white"/>
+    </svg>
+    <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem;">Open a Bank Account</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Join Apex National Bank for secure everyday personal banking.</p>
+  </div>
+
+  <form method="post" action="{{ url_for('auth.register') }}">
+    <div class="form-group">
+      <label class="form-label" for="full_name">Legal Full Name</label>
+      <input class="form-control" id="full_name" name="full_name" type="text" placeholder="e.g. Eleanor Vance" required autofocus>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="email">Email Address</label>
+      <input class="form-control" id="email" name="email" type="email" placeholder="e.g. eleanor@example.com" required autocomplete="email">
+      <p class="form-text">Used for transaction receipts and security alerts.</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="username">Username</label>
+      <input class="form-control" id="username" name="username" type="text" placeholder="e.g. eleanor_v" required autocomplete="username">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="phone_number">Phone Number <span style="color: var(--text-muted); font-weight: 400;">(optional)</span></label>
+      <input class="form-control" id="phone_number" name="phone_number" type="tel" placeholder="+1 (555) 019-2834">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Create Password</label>
+      <div class="input-icon-group">
+        <input class="form-control" id="password" name="password" type="password" minlength="6" placeholder="At least 6 characters" required autocomplete="new-password">
+        <button type="button" data-toggle-password="password" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 0.85rem; font-weight: 600; color: var(--primary); cursor: pointer;">Show</button>
+      </div>
+      <p class="form-text">Must contain at least 6 characters.</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="confirm_password">Confirm Password</label>
+      <input class="form-control" id="confirm_password" name="confirm_password" type="password" minlength="6" placeholder="Repeat your password" required autocomplete="new-password">
+    </div>
+
+    <div style="margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+      By submitting this application, you acknowledge our electronic account disclosures and FDIC deposit insurance terms.
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block btn-lg">
+      Complete Account Opening ➔
+    </button>
+  </form>
+
+  <div style="text-align: center; margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border-light); font-size: 0.9rem; color: var(--text-muted);">
+    Already have an account? 
+    <a href="{{ url_for('auth.login') }}" style="font-weight: 700;">Sign In</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Accounts Ledger · Apex Administrator{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--secondary); margin-bottom: 0.25rem;">
+      Bank Accounts & Liquidity Ledger
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      System-wide account balance distribution, liquidity ratios, and holding metrics.
+    </p>
+  </div>
+  <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary btn-sm">← Back to Console</a>
+</div>
+
+<!-- Balance & Liquidity Overview Stats -->
+<div class="stats-grid" style="margin-bottom: 2rem;">
+  <div class="card stat-card">
+    <div class="stat-label">Aggregate Customer Liquidity</div>
+    <div class="stat-value" style="color: var(--primary);">${{ '%.2f'|format(total_liquidity) }}</div>
+    <div class="stat-trend positive"><span>●</span> Total Vault Deposits</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-label">Average Account Balance</div>
+    <div class="stat-value" style="color: var(--secondary);">${{ '%.2f'|format(average_balance) }}</div>
+    <div class="stat-trend neutral"><span>~</span> Per Active Account</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-label">Accounts Under Supervision</div>
+    <div class="stat-value" style="color: var(--secondary);">{{ pagination.total }}</div>
+    <div class="stat-trend positive"><span>✓</span> 100% Ledger Audited</div>
+  </div>
+</div>
+
+<!-- Search Bar -->
+<div class="card" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+  <form method="get" action="{{ url_for('admin.accounts') }}" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <strong style="color: var(--secondary);">Search Accounts</strong>
+    <div style="display: flex; gap: 0.5rem;">
+      <input class="form-control" type="text" name="q" value="{{ search_query }}" placeholder="Account # or holder name..." style="max-width: 300px; font-size: 0.9rem;">
+      <button type="submit" class="btn btn-secondary btn-sm">Search</button>
+      {% if search_query %}
+        <a href="{{ url_for('admin.accounts') }}" class="btn btn-secondary btn-sm" title="Clear">✕</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- Accounts Table Card -->
+<div class="card">
+  <div class="table-responsive">
+    {% if accounts %}
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Account Number</th>
+            <th>Account Holder</th>
+            <th>Email</th>
+            <th>Type / Tier</th>
+            <th>Holding Balance</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for acc in accounts %}
+            <tr>
+              <td>
+                <code style="font-family: var(--font-mono); font-weight: 700; font-size: 0.95rem; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px;">
+                  {{ acc.account_number }}
+                </code>
+              </td>
+              <td>
+                <strong style="color: var(--secondary);">{{ acc.full_name }}</strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">@{{ acc.username }}</div>
+              </td>
+              <td style="font-size: 0.9rem; color: var(--text-muted);">
+                {{ acc.email }}
+              </td>
+              <td>
+                <span class="badge badge-customer">Personal Checking</span>
+              </td>
+              <td style="font-size: 1.1rem; font-weight: 800; color: var(--secondary);">
+                ${{ '%.2f'|format(acc.balance) }}
+              </td>
+              <td>
+                {% if acc.is_active %}
+                  <span class="badge badge-active">Active</span>
+                {% else %}
+                  <span class="badge badge-frozen">Frozen</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🏛️</div>
+        <div class="empty-state-text">No Accounts Match Criteria</div>
+        <p class="empty-state-sub">Try searching with a different account number or customer name.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Pagination -->
+  {% if pagination and pagination.pages > 1 %}
+    <div class="pagination-container" style="padding: 1.25rem; border-top: 1px solid var(--border-light);">
+      <span style="font-size: 0.85rem; color: var(--text-muted);">
+        Showing page <strong>{{ pagination.page }}</strong> of <strong>{{ pagination.pages }}</strong>
+      </span>
+      <div class="pagination-links">
+        <a href="{{ url_for('admin.accounts', page=pagination.prev_num, q=search_query) }}" 
+           class="page-btn {% if not pagination.has_prev %}disabled{% endif %}">
+          ← Previous
+        </a>
+
+        {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+          {% if p %}
+            <a href="{{ url_for('admin.accounts', page=p, q=search_query) }}" 
+               class="page-btn {% if p == pagination.page %}active{% endif %}">
+              {{ p }}
+            </a>
+          {% else %}
+            <span class="page-btn disabled">…</span>
+          {% endif %}
+        {% endfor %}
+
+        <a href="{{ url_for('admin.accounts', page=pagination.next_num, q=search_query) }}" 
+           class="page-btn {% if not pagination.has_next %}disabled{% endif %}">
+          Next →
+        </a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
